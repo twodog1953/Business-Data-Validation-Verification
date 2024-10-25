@@ -11,7 +11,10 @@ def init_cleaning(df, keep_cols, concat_cols, shrink_cols, cap_cols):
 
     ccols, delimiter, new_col_names = concat_cols[0], concat_cols[1], concat_cols[2]
     for i in range(len(ccols)):
-        data[new_col_names[i]] = data[ccols[i]].apply(lambda row: ''.join(str(row)), axis=1)
+        data[new_col_names[i]] = data[ccols[i][0]].fillna("")
+        for j in ccols[i][1:]:
+            data[new_col_names[i]] = pd.Series(map(lambda x, y: str(x) + delimiter + str(y), data[new_col_names[i]], data[j].fillna("")))
+            # data[new_col_names[i]] = data[new_col_names[i]].apply(lambda x: str(x) + delimiter + str(data[j]))
 
     scols, shrink_digits = shrink_cols[0], shrink_cols[1]
     for i in range(len(scols)):
@@ -27,6 +30,8 @@ def init_cleaning(df, keep_cols, concat_cols, shrink_cols, cap_cols):
 
 
 if __name__ == "__main__":
+    pd.set_option('display.max_columns', None)
+    pd.options.mode.chained_assignment = None  # default='warn'
     print("Initialized! ")
     # import data files and read as pandas df
     data_doc1 = "emp_sage.xlsx"
@@ -38,4 +43,8 @@ if __name__ == "__main__":
                         [[["Address 1", "Address 2"], ["First Name", "Last Name"]], " ", ["Address", "Name"]],
                         [["Employee ID"], [-5]],
                         ["Name", "Address", "City", "State"])
-    print(data1["Employee ID"].head(10))
+    # data2 = init_cleaning(df2,
+    #                       )
+
+
+    print(data1[["Name", "Address"]].head(10))
