@@ -16,6 +16,7 @@ The code for 'Employees Records Verification.py' could be run to create a finali
 
 The sample of end result is as following: 
 
-![img.png](img.png)
+![Screenshot 2024-10-28 144949](https://github.com/user-attachments/assets/f9249390-4022-48b1-a665-4b0b2323221d)
+
 
 As shown on the screenshot, the Levenshtein scores between key columns of the two datasets are calculated, and the color scale are set in Excel based on the scores to offer a visual comparison between the discrepancies of the two datasets. 
