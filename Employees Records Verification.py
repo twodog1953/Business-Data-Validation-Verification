@@ -41,6 +41,7 @@ def rename_merge(df1, df2, keycol1, keycol2):
         df2.rename(columns={c: c + '2'}, inplace=True)
     df2 = df2.rename(columns={keycol2 + '2': keycol1 + '1'})
     df = pd.merge(df1, df2, how="left", on=keycol1 + '1')
+    df = df.rename(columns={keycol1 + '1': keycol1})
     return df
 
 
@@ -48,7 +49,7 @@ def rename_merge(df1, df2, keycol1, keycol2):
 def fuzz_score(f_dic, id_col):
     # To generate fuzzy score for all desired str cols
     # format: {"output col name": [col1, col2]}
-    out = pd.DataFrame({"Employee ID1": id_col})
+    out = pd.DataFrame({"Employee ID": id_col})
     for s in f_dic:
         col1, col2 = f_dic[s][0], f_dic[s][1]
         print("col1 len: {0}, col2 len: {1}".format(len(col1), len(col2)))
@@ -70,8 +71,8 @@ if __name__ == "__main__":
     df2 = pd.read_excel("emp_win.xls", header=1).drop_duplicates("EmployeeNumber")
 
     # initial cleaning and renaming
-    keep_col1 = ["Employee ID", "Name", "Address", "City", "State", "Zip"]
-    keep_col2 = ["EmployeeNumber", "Name", "Address", "City", "State", "Zip"]
+    keep_col1 = ["Employee ID", "Name", "Address", "City", "State", "Zip", "Resigned", "Terminated", "Last Day Worked"]
+    keep_col2 = ["EmployeeNumber", "Name", "Address", "City", "State", "Zip", "Phone1", "Phone2"]
     data1 = init_cleaning(df1,
                         keep_col1,
                         [[["Address 1", "Address 2"], ["First Name", "Last Name"]], " ", ["Address", "Name"]],
@@ -104,9 +105,8 @@ if __name__ == "__main__":
 
     # df = rename_merge(data1, data2, key1, key2).fillna('').drop_duplicates("Employee ID1")
     df = rename_merge(data1, data2, key1, key2)
-    df = df.dropna(subset=["Name2"]).fillna('').drop_duplicates("Employee ID1")
-    dff = df.copy()
-    print(df.describe())
+    df = df.dropna(subset=["Name2"]).fillna('').drop_duplicates(key1)
+    print(df.columns)
     print("-----")
 
     # format: {"output col name": [col1, col2]}
@@ -116,9 +116,9 @@ if __name__ == "__main__":
         "City Score": [df["City1"], df["City2"]],
         "Zip Score": [df["Zip1"], df["Zip2"]]
     }
-    fuzz_df = fuzz_score(fuzz_dic, df["Employee ID1"])
-    print(fuzz_df.describe())
-    df = pd.merge(df, fuzz_df, on="Employee ID1", how="left")
+    fuzz_df = fuzz_score(fuzz_dic, df[key1])
+    print(fuzz_df.columns)
+    df = pd.merge(df, fuzz_df, on=key1, how="left")
 
     # output result to excel
     wb = openpyxl.Workbook()
